@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Damascus Protocol 2026</title>
+    <style>
+        :root {
+            --bg: #050505;
+            --card: #121214;
+            --accent: #7b2cbf;
+            --gold: #ffb703;
+            --text: #ffffff;
+            --dim: #71717a;
+            --glass: rgba(255, 255, 255, 0.05);
+            --damascus-pattern: url('https://i.imgur.com/rA8RjFv.jpeg');
+        }
+
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            background: var(--bg);
+            color: var(--text);
+            font-family: 'Inter', -apple-system, sans-serif;
+            margin: 0;
+            padding-bottom: 40px;
+        }
+
+        /* Sticky Progress Header */
+        header {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: rgba(5, 5, 5, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 20px;
+            border-bottom: 1px solid var(--glass);
+            text-align: center;
+        }
+
+        .header-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            letter-spacing: 4px;
+            text-transform: uppercase;
+            background: linear-gradient(45deg, #fff, var(--dim));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 15px;
+        }
+
+        .progress-rail {
+            width: 100%;
+            height: 10px;
+            background: #1a1a1a;
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid var(--glass);
+        }
+
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background: var(--damascus-pattern);
+            background-size: cover;
+            box-shadow: 0 0 20px rgba(123, 44, 191, 0.5);
+            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+        }
+
+        #stats-label {
+            font-size: 0.8rem;
+            margin-top: 10px;
+            color: var(--accent);
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        /* Category Layout */
+        main { padding: 15px; max-width: 800px; margin: 0 auto; }
+
+        .category {
+            background: var(--card);
+            border-radius: 16px;
+            margin-bottom: 20px;
+            border: 1px solid var(--glass);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .category-trigger {
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--glass);
+        }
+
+        .category-trigger h2 { font-size: 1.1rem; margin: 0; color: var(--gold); }
+
+        .weapon-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 10px;
+            padding: 15px;
+        }
+
+        .weapon-item {
+            position: relative;
+            background: var(--glass);
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 0.85rem;
+            font-weight: 500;
+            border: 1px solid transparent;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+
+        .weapon-item.checked {
+            background: rgba(255, 183, 3, 0.1);
+            border-color: var(--gold);
+            color: var(--gold);
+        }
+
+        .weapon-item input { display: none; }
+
+        /* Tablet/Desktop tweaks */
+        @media (min-width: 600px) {
+            .weapon-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <div class="header-title">Keep Going</div>
+    <div class="progress-rail"><div id="progress-bar"></div></div>
+    <div id="stats-label">0/128 COMPLETED (0%)</div>
+</header>
+
+<main id="app-root"></main>
+
+<script>
+    const weaponManifest = {
+        "Assault Rifles": ["Lachmann-556", "XM4", "RAM-7", "Grau 5.56", "Type 19", "Groza", "FFAR 1", "Krig 6", "Maddox", "EM2", "Oden", "Kilo 141", "M13", "CR-56 AMAX", "FR .556", "AS VAL", "Peacekeeper MK2", "DR-H", "HVK-30", "KN-44", "LK24", "HBRa3", "ICR-1", "Man-O-War", "ASM10", "BK57", "Type 25", "AK-47", "AK117", "M4", "M16"],
+        "SMGs": ["USS 9", "VMP", "LC10", "ISO", "CX-9", "OTs 9", "Striker 45", "Switchblade X9", "LAPA", "KSP 45", "MAC-10", "PPSh-41", "CBR4", "MX9", "PP19 Bizon", "QXR", "Fennec", "GKS", "Cordite", "QQ9", "HG 40", "MSMC", "Pharo", "Razorback", "PDW-57", "Chicom", "RUS-79U"],
+        "Snipers": ["3-Line Rifle", "LW3-Tundra", "HDR", "ZRG 20mm", "Koshka", "SVD", "Rytec AMR", "NA-45", "Outlaw", "Locus", "DL Q33", "Arctic .50", "M21 EBR", "XPR-50"],
+        "Marksman": ["SO-14", "Type 63", "M1 Garand", "MK2", "SP-R 208", "SKS", "Kilo Bolt-Action"],
+        "LMGs": ["MG42", "RAAL MG", "Bruen MK9", "Dingo", "PKM", "Hades", "Holger-26", "Chopper", "M4LMG", "UL736", "RPD", "S36", "MG82"],
+        "Shotguns": ["VLK Rogue", "Argus", "JAK-12", "R9-0", "Echo", "KRM-262", "HS0405", "HS2126", "BY15", "Striker"],
+        "Secondaries": ["Dobvra", "Makarov", "L-CAR 9", "Renetti", "Shorty", ".50 GS", "J358", "MW11", "D13 Sector", "Thumper", "SMRS", "FHJ-18"],
+        "Melee": ["Butterfly Knife", "Kali Sticks", "Nunchucks", "Katana", "Sickle", "Machete", "Wrench", "Prizefighters", "Bat", "Axe", "Knife"]
+    };
+
+    function renderApp() {
+        const root = document.getElementById('app-root');
+        root.innerHTML = '';
+        
+        Object.entries(weaponManifest).forEach(([cat, guns]) => {
+            const section = document.createElement('div');
+            section.className = 'category';
+            
+            const done = guns.filter(g => localStorage.getItem(g) === 'true').length;
+            
+            section.innerHTML = `
+                <div class="category-trigger">
+                    <h2>${cat}</h2>
+                    <span style="color:var(--dim); font-size:0.8rem">${done}/${guns.length}</span>
+                </div>
+                <div class="weapon-grid">
+                    ${guns.map(gun => `
+                        <div class="weapon-item ${localStorage.getItem(gun) === 'true' ? 'checked' : ''}" onclick="update('${gun}')">
+                            ${gun}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+            root.appendChild(section);
+        });
+        calculateTotal();
+    }
+
+    window.update = (id) => {
+        const state = localStorage.getItem(id) === 'true';
+        localStorage.setItem(id, !state);
+        renderApp();
+    };
+
+    function calculateTotal() {
+        const all = Object.values(weaponManifest).flat();
+        const done = all.filter(g => localStorage.getItem(g) === 'true').length;
+        const p = Math.round((done / all.length) * 100);
+        
+        document.getElementById('progress-bar').style.width = p + '%';
+        document.getElementById('stats-label').innerText = `${done}/${all.length} COMPLETED (${p}%)`;
+    }
+
+    renderApp();
+</script>
+</body>
+</html>
