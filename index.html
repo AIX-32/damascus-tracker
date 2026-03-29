@@ -1,201 +1,572 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Damascus Protocol 2026</title>
-    <style>
-        :root {
-            --bg: #050505;
-            --card: #121214;
-            --accent: #7b2cbf;
-            --gold: #ffb703;
-            --text: #ffffff;
-            --dim: #71717a;
-            --glass: rgba(255, 255, 255, 0.05);
-            --damascus-pattern: url('https://i.imgur.com/rA8RjFv.jpeg');
-        }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Damascus — CODM Tracker</title>
+<meta name="theme-color" content="#080808">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="./icons/favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="./icons/favicon-16.png">
+<link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:      #080808;
+  --surface: #111113;
+  --border:  #1e1e22;
+  --accent:  #c8ff00;
+  --dim:     #3a3a40;
+  --muted:   #6b6b72;
+  --text:    #e8e8e8;
+  --done-bg: rgba(200,255,0,0.07);
+  --done-border: rgba(200,255,0,0.35);
+}
 
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        body {
-            background: var(--bg);
-            color: var(--text);
-            font-family: 'Inter', -apple-system, sans-serif;
-            margin: 0;
-            padding-bottom: 40px;
-        }
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; margin: 0; padding: 0; }
 
-        /* Sticky Progress Header */
-        header {
-            position: sticky;
-            top: 0;
-            z-index: 100;
-            background: rgba(5, 5, 5, 0.9);
-            backdrop-filter: blur(20px);
-            padding: 20px;
-            border-bottom: 1px solid var(--glass);
-            text-align: center;
-        }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  min-height: 100dvh;
+  padding-bottom: 60px;
+}
 
-        .header-title {
-            font-size: 1.4rem;
-            font-weight: 800;
-            letter-spacing: 4px;
-            text-transform: uppercase;
-            background: linear-gradient(45deg, #fff, var(--dim));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            margin-bottom: 15px;
-        }
+header {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: rgba(8,8,8,0.92);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--border);
+  padding: 16px 20px 14px;
+}
 
-        .progress-rail {
-            width: 100%;
-            height: 10px;
-            background: #1a1a1a;
-            border-radius: 20px;
-            overflow: hidden;
-            border: 1px solid var(--glass);
-        }
+.hd-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 12px;
+}
 
-        #progress-bar {
-            width: 0%;
-            height: 100%;
-            background: var(--damascus-pattern);
-            background-size: cover;
-            box-shadow: 0 0 20px rgba(123, 44, 191, 0.5);
-            transition: width 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-        }
+.hd-title {
+  font-size: 2rem;
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: var(--accent);
+  line-height: 1;
+}
 
-        #stats-label {
-            font-size: 0.8rem;
-            margin-top: 10px;
-            color: var(--accent);
-            font-weight: 700;
-            letter-spacing: 1px;
-        }
+.hd-sub {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.7rem;
+  color: var(--muted);
+  letter-spacing: 1px;
+}
 
-        /* Category Layout */
-        main { padding: 15px; max-width: 800px; margin: 0 auto; }
+.hd-count {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.72rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
 
-        .category {
-            background: var(--card);
-            border-radius: 16px;
-            margin-bottom: 20px;
-            border: 1px solid var(--glass);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-        }
+.rail {
+  position: relative;
+  height: 3px;
+  background: var(--border);
+  overflow: hidden;
+}
 
-        .category-trigger {
-            padding: 20px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid var(--glass);
-        }
+.rail-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--accent);
+  transition: width 0.5s cubic-bezier(0.22,1,0.36,1);
+  box-shadow: 0 0 12px rgba(200,255,0,0.4);
+}
 
-        .category-trigger h2 { font-size: 1.1rem; margin: 0; color: var(--gold); }
+.rail-label {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
 
-        .weapon-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 10px;
-            padding: 15px;
-        }
+.rail-label span {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.65rem;
+  color: var(--dim);
+  letter-spacing: 0.5px;
+}
 
-        .weapon-item {
-            position: relative;
-            background: var(--glass);
-            padding: 15px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 0.85rem;
-            font-weight: 500;
-            border: 1px solid transparent;
-            transition: 0.2s;
-            cursor: pointer;
-        }
+main {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 16px 12px;
+}
 
-        .weapon-item.checked {
-            background: rgba(255, 183, 3, 0.1);
-            border-color: var(--gold);
-            color: var(--gold);
-        }
+.controls {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
 
-        .weapon-item input { display: none; }
+.ctrl-btn {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--muted);
+  padding: 6px 14px;
+  cursor: pointer;
+  transition: 0.15s;
+}
+.ctrl-btn:hover { border-color: var(--accent); color: var(--accent); }
 
-        /* Tablet/Desktop tweaks */
-        @media (min-width: 600px) {
-            .weapon-grid { grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); }
-        }
-    </style>
+.cat {
+  border: 1px solid var(--border);
+  margin-bottom: 8px;
+  background: var(--surface);
+  transition: border-color 0.2s;
+}
+.cat.complete { border-color: var(--done-border); }
+
+.cat-head {
+  display: grid;
+  grid-template-columns: auto 1fr auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  cursor: pointer;
+  user-select: none;
+  border-bottom: 1px solid var(--border);
+  transition: background 0.15s;
+}
+.cat-head:hover { background: rgba(255,255,255,0.02); }
+.cat.collapsed .cat-head { border-bottom: none; }
+
+.cat-tag {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.6rem;
+  letter-spacing: 1px;
+  color: var(--muted);
+}
+
+.cat-name {
+  font-size: 1.1rem;
+  font-weight: 700;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--text);
+}
+
+.cat-fraction {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  white-space: nowrap;
+}
+.cat-fraction .done { color: var(--accent); }
+
+.cat-minirail {
+  width: 60px;
+  height: 2px;
+  background: var(--border);
+  position: relative;
+  overflow: hidden;
+}
+.cat-minirail-fill {
+  position: absolute;
+  left: 0; top: 0; bottom: 0;
+  background: var(--accent);
+  transition: width 0.4s ease;
+}
+
+.cat-chevron {
+  font-size: 0.6rem;
+  color: var(--dim);
+  transition: transform 0.2s;
+  margin-left: 4px;
+}
+.cat.collapsed .cat-chevron { transform: rotate(-90deg); }
+
+.weapon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+  gap: 1px;
+  background: var(--border);
+  overflow: hidden;
+  max-height: 9999px;
+  transition: max-height 0.35s ease;
+}
+.cat.collapsed .weapon-grid {
+  max-height: 0;
+}
+
+.gun {
+  background: var(--surface);
+  padding: 14px 12px 12px;
+  cursor: pointer;
+  transition: background 0.12s;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 64px;
+}
+.gun:hover { background: rgba(255,255,255,0.03); }
+.gun.done { background: var(--done-bg); }
+
+.gun-name {
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  color: var(--text);
+  line-height: 1.2;
+  transition: color 0.12s;
+}
+.gun.done .gun-name { color: var(--accent); }
+
+.gun-check {
+  width: 12px;
+  height: 12px;
+  border: 1.5px solid var(--dim);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: auto;
+  transition: border-color 0.12s;
+}
+.gun.done .gun-check {
+  border-color: var(--accent);
+  background: var(--accent);
+}
+.gun-check::after {
+  content: '';
+  width: 6px;
+  height: 4px;
+  border-left: 1.5px solid #000;
+  border-bottom: 1.5px solid #000;
+  transform: rotate(-45deg) translateY(-1px);
+  opacity: 0;
+  transition: opacity 0.12s;
+}
+.gun.done .gun-check::after { opacity: 1; }
+
+#complete-banner {
+  display: none;
+  text-align: center;
+  padding: 40px 20px;
+  border: 1px solid var(--accent);
+  margin-bottom: 16px;
+  background: rgba(200,255,0,0.04);
+}
+#complete-banner h2 {
+  font-size: 3rem;
+  font-weight: 900;
+  letter-spacing: 8px;
+  color: var(--accent);
+  text-transform: uppercase;
+}
+#complete-banner p {
+  font-family: 'DM Mono', monospace;
+  font-size: 0.75rem;
+  color: var(--muted);
+  margin-top: 8px;
+  letter-spacing: 1px;
+}
+
+@media (min-width: 600px) {
+  .weapon-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+}
+
+/* ── FLASH OVERLAY ── */
+#flash-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  opacity: 0;
+}
+#flash-overlay.active { animation: flash-in-out 1.4s ease forwards; }
+@keyframes flash-in-out {
+  0%   { opacity: 0; }
+  10%  { opacity: 1; }
+  60%  { opacity: 1; }
+  100% { opacity: 0; }
+}
+#flash-text {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(2.5rem, 10vw, 5rem);
+  font-weight: 900;
+  letter-spacing: 6px;
+  text-transform: uppercase;
+  color: #000;
+  background: var(--accent);
+  padding: 16px 40px;
+  transform: scale(0.6) rotate(-2deg);
+  animation: none;
+}
+#flash-overlay.active #flash-text {
+  animation: pop-in 0.25s cubic-bezier(0.34,1.56,0.64,1) 0.05s forwards;
+}
+@keyframes pop-in {
+  from { transform: scale(0.6) rotate(-2deg); }
+  to   { transform: scale(1) rotate(-1deg); }
+}
+#confetti-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 9998;
+  pointer-events: none;
+  width: 100%;
+  height: 100%;
+}
+</style>
 </head>
 <body>
 
 <header>
-    <div class="header-title">Keep Going</div>
-    <div class="progress-rail"><div id="progress-bar"></div></div>
-    <div id="stats-label">0/128 COMPLETED (0%)</div>
+  <div class="hd-top">
+    <div>
+      <div class="hd-title">Damascus</div>
+      <div class="hd-sub">CODM · Gold Grind Tracker · S3 2026</div>
+    </div>
+    <div class="hd-count" id="hd-count">0 / 0 · 0%</div>
+  </div>
+  <div class="rail"><div class="rail-fill" id="rail-fill"></div></div>
+  <div class="rail-label">
+    <span>GOLD CAMOS COMPLETED</span>
+    <span id="rail-right">— REMAINING</span>
+  </div>
 </header>
 
-<main id="app-root"></main>
+<main>
+  <div class="controls">
+    <button class="ctrl-btn" onclick="expandAll()">Expand All</button>
+    <button class="ctrl-btn" onclick="collapseAll()">Collapse All</button>
+    <button class="ctrl-btn" id="reset-btn" onclick="resetPrompt()">Reset</button>
+    <span id="reset-confirm" style="display:none; font-family:'DM Mono',monospace; font-size:0.7rem; color:#ff4444;">
+      Sure? <a href="#" style="color:#ff4444;text-decoration:underline" onclick="doReset();return false;">Yes, reset all</a>
+      &nbsp;·&nbsp;
+      <a href="#" style="color:var(--muted);text-decoration:none" onclick="cancelReset();return false;">cancel</a>
+    </span>
+  </div>
+
+  <div id="complete-banner">
+    <h2>Damascus</h2>
+    <p>All gold camos unlocked. You're done.</p>
+  </div>
+
+  <div id="app"></div>
+</main>
+
+<div id="flash-overlay"><div id="flash-text">LET'S F*CKING GO</div></div>
+<canvas id="confetti-canvas"></canvas>
 
 <script>
-    const weaponManifest = {
-        "Assault Rifles": ["Lachmann-556", "XM4", "RAM-7", "Grau 5.56", "Type 19", "Groza", "FFAR 1", "Krig 6", "Maddox", "EM2", "Oden", "Kilo 141", "M13", "CR-56 AMAX", "FR .556", "AS VAL", "Peacekeeper MK2", "DR-H", "HVK-30", "KN-44", "LK24", "HBRa3", "ICR-1", "Man-O-War", "ASM10", "BK57", "Type 25", "AK-47", "AK117", "M4", "M16"],
-        "SMGs": ["USS 9", "VMP", "LC10", "ISO", "CX-9", "OTs 9", "Striker 45", "Switchblade X9", "LAPA", "KSP 45", "MAC-10", "PPSh-41", "CBR4", "MX9", "PP19 Bizon", "QXR", "Fennec", "GKS", "Cordite", "QQ9", "HG 40", "MSMC", "Pharo", "Razorback", "PDW-57", "Chicom", "RUS-79U"],
-        "Snipers": ["3-Line Rifle", "LW3-Tundra", "HDR", "ZRG 20mm", "Koshka", "SVD", "Rytec AMR", "NA-45", "Outlaw", "Locus", "DL Q33", "Arctic .50", "M21 EBR", "XPR-50"],
-        "Marksman": ["SO-14", "Type 63", "M1 Garand", "MK2", "SP-R 208", "SKS", "Kilo Bolt-Action"],
-        "LMGs": ["MG42", "RAAL MG", "Bruen MK9", "Dingo", "PKM", "Hades", "Holger-26", "Chopper", "M4LMG", "UL736", "RPD", "S36", "MG82"],
-        "Shotguns": ["VLK Rogue", "Argus", "JAK-12", "R9-0", "Echo", "KRM-262", "HS0405", "HS2126", "BY15", "Striker"],
-        "Secondaries": ["Dobvra", "Makarov", "L-CAR 9", "Renetti", "Shorty", ".50 GS", "J358", "MW11", "D13 Sector", "Thumper", "SMRS", "FHJ-18"],
-        "Melee": ["Butterfly Knife", "Kali Sticks", "Nunchucks", "Katana", "Sickle", "Machete", "Wrench", "Prizefighters", "Bat", "Axe", "Knife"]
-    };
 
-    function renderApp() {
-        const root = document.getElementById('app-root');
-        root.innerHTML = '';
-        
-        Object.entries(weaponManifest).forEach(([cat, guns]) => {
-            const section = document.createElement('div');
-            section.className = 'category';
-            
-            const done = guns.filter(g => localStorage.getItem(g) === 'true').length;
-            
-            section.innerHTML = `
-                <div class="category-trigger">
-                    <h2>${cat}</h2>
-                    <span style="color:var(--dim); font-size:0.8rem">${done}/${guns.length}</span>
-                </div>
-                <div class="weapon-grid">
-                    ${guns.map(gun => `
-                        <div class="weapon-item ${localStorage.getItem(gun) === 'true' ? 'checked' : ''}" onclick="update('${gun}')">
-                            ${gun}
-                        </div>
-                    `).join('')}
-                </div>
-            `;
-            root.appendChild(section);
-        });
-        calculateTotal();
-    }
+const MANIFEST = {
 
-    window.update = (id) => {
-        const state = localStorage.getItem(id) === 'true';
-        localStorage.setItem(id, !state);
-        renderApp();
-    };
+  "Assault Rifles": [
+    "M4","M16","AK-47","AK117","ICR-1","Man-O-War","HBRa3","LK24","HVK-30",
+    "ASM10","BK57","Type 25","KN-44","DR-H","Peacekeeper MK2","AS VAL",
+    "FR .556","CR-56 AMAX","M13","Swordfish","Kilo 141","Oden","Krig 6",
+    "EM2","Maddox","FFAR 1","Grau 5.56","Groza","Type 19","BP50",
+    "LAG 53","XM4","Vargo-S","RAM-7","Lachmann-556"
+  ],
 
-    function calculateTotal() {
-        const all = Object.values(weaponManifest).flat();
-        const done = all.filter(g => localStorage.getItem(g) === 'true').length;
-        const p = Math.round((done / all.length) * 100);
-        
-        document.getElementById('progress-bar').style.width = p + '%';
-        document.getElementById('stats-label').innerText = `${done}/${all.length} COMPLETED (${p}%)`;
-    }
+  "SMGs": [
+    "RUS-79U","MSMC","HG 40","PDW-57","Chicom","Razorback","Pharo","GKS",
+    "Cordite","QQ9","Fennec","AGR 556","QXR","PP19 Bizon","MX9","CBR4",
+    "PPSh-41","MAC-10","KSP 45","Switchblade X9","LAPA","OTs 9","Striker 45",
+    "CX-9","TEC-9","ISO","USS 9","VMP","Sten","LC10"
+  ],
 
-    renderApp();
+  "Snipers": [
+    "DL Q33","M21 EBR","XPR-50","Arctic .50","Locus","Outlaw","NA-45",
+    "Rytec AMR","SVD","Koshka","ZRG 20mm","HDR","LW3-Tundra","3-Line Rifle"
+  ],
+
+  "Marksman": [
+    "Kilo Bolt-Action","SKS","SP-R 208","MK2","Type 63","M1 Garand","SO-14","M14","Kar98k"
+  ],
+
+  "LMGs": [
+    "M4LMG","RPD","UL736","S36","Chopper","Holger-26","Hades","PKM",
+    "Dingo","Bruen MK9","MG42","RAAL MG","MG 82"
+  ],
+
+  "Shotguns": [
+    "BY15","HS0405","HS2126","Striker","KRM-262","Echo","R9-0","JAK-12",
+    "Argus","VLK Rogue","Einhorn Revolving","MX Guardian"
+  ],
+
+  "Pistols": [
+    "J358","MW11",".50 GS","Makarov","Renetti","Shorty","L-CAR 9",
+    "Dobvra","D13 Sector","Crossbow"
+  ],
+
+  "Launchers": [
+    "Thumper","SMRS","FHJ-18"
+  ],
+
+  "Melee": [
+    "Knife","Axe","Bat","Prizefighters","Wrench","Machete","Sickle",
+    "Katana","Nunchucks","Kali Sticks","Butterfly Knife"
+  ]
+};
+
+const KEY = 'dam_v3_';
+const get  = id => localStorage.getItem(KEY + id) === '1';
+const set  = (id, val) => localStorage.setItem(KEY + id, val ? '1' : '0');
+
+function render() {
+  const app  = document.getElementById('app');
+  const all  = Object.values(MANIFEST).flat();
+  const done = all.filter(g => get(g)).length;
+  const pct  = all.length ? Math.round((done / all.length) * 100) : 0;
+
+  document.getElementById('hd-count').innerHTML =
+    `<span style="color:var(--accent);font-size:1.1rem">${done}</span> / ${all.length} &nbsp;·&nbsp; ${pct}%`;
+  document.getElementById('rail-fill').style.width = pct + '%';
+  document.getElementById('rail-right').textContent = (all.length - done) + ' REMAINING';
+  document.getElementById('complete-banner').style.display =
+    done === all.length && all.length > 0 ? 'block' : 'none';
+
+  app.innerHTML = '';
+  let idx = 0;
+  Object.entries(MANIFEST).forEach(([cat, guns]) => {
+    const catDone    = guns.filter(g => get(g)).length;
+    const catPct     = Math.round((catDone / guns.length) * 100);
+    const isComplete = catDone === guns.length;
+    const collapsed  = localStorage.getItem('cat_col_' + cat) === '1';
+    const tag        = String(++idx).padStart(2, '0');
+
+    const section = document.createElement('div');
+    section.className = 'cat' + (isComplete ? ' complete' : '') + (collapsed ? ' collapsed' : '');
+
+    section.innerHTML = `
+      <div class="cat-head" onclick="toggleCat('${cat.replace(/'/g,"\\'")}')">
+        <span class="cat-tag">${tag}</span>
+        <span class="cat-name">${cat}</span>
+        <span class="cat-fraction"><span class="done">${catDone}</span>/${guns.length}</span>
+        <div style="display:flex;align-items:center;gap:8px">
+          <div class="cat-minirail"><div class="cat-minirail-fill" style="width:${catPct}%"></div></div>
+          <span class="cat-chevron">▼</span>
+        </div>
+      </div>
+      <div class="weapon-grid">
+        ${guns.map(gun => `
+          <div class="gun ${get(gun) ? 'done' : ''}" onclick="toggle('${gun.replace(/'/g,"\\'")}')">
+            <span class="gun-name">${gun}</span>
+            <div class="gun-check"></div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    app.appendChild(section);
+  });
+}
+
+window.toggle = id => {
+  const wasOff = !get(id);
+  set(id, wasOff);
+  render();
+  if (wasOff) celebrate();
+};
+window.toggleCat = cat => {
+  const k = 'cat_col_' + cat;
+  localStorage.setItem(k, localStorage.getItem(k) === '1' ? '0' : '1');
+  render();
+};
+window.expandAll  = () => { Object.keys(MANIFEST).forEach(c => localStorage.setItem('cat_col_' + c, '0')); render(); };
+window.collapseAll = () => { Object.keys(MANIFEST).forEach(c => localStorage.setItem('cat_col_' + c, '1')); render(); };
+window.resetPrompt = () => {
+  document.getElementById('reset-confirm').style.display = 'inline';
+  document.getElementById('reset-btn').style.display = 'none';
+};
+window.cancelReset = () => {
+  document.getElementById('reset-confirm').style.display = 'none';
+  document.getElementById('reset-btn').style.display = '';
+};
+window.doReset = () => {
+  Object.values(MANIFEST).flat().forEach(g => localStorage.removeItem(KEY + g));
+  cancelReset();
+  render();
+};
+
+let confettiAnim = null;
+function celebrate() {
+  const overlay = document.getElementById('flash-overlay');
+  overlay.classList.remove('active');
+  void overlay.offsetWidth;
+  overlay.classList.add('active');
+
+  const canvas = document.getElementById('confetti-canvas');
+  const ctx = canvas.getContext('2d');
+  canvas.width  = window.innerWidth;
+  canvas.height = window.innerHeight;
+
+  const colors = ['#c8ff00','#ffffff','#a0cc00','#eeffaa','#000000'];
+  const pieces = Array.from({length: 120}, () => ({
+    x: Math.random() * canvas.width,
+    y: -10 - Math.random() * 200,
+    w: 6 + Math.random() * 8,
+    h: 10 + Math.random() * 6,
+    r: Math.random() * Math.PI * 2,
+    dr: (Math.random() - 0.5) * 0.25,
+    dx: (Math.random() - 0.5) * 4,
+    dy: 3 + Math.random() * 5,
+    color: colors[Math.floor(Math.random() * colors.length)],
+    alpha: 1
+  }));
+
+  if (confettiAnim) cancelAnimationFrame(confettiAnim);
+  const startTime = performance.now();
+  function frame(now) {
+    const elapsed = now - startTime;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let alive = false;
+    pieces.forEach(p => {
+      p.x += p.dx; p.y += p.dy; p.r += p.dr; p.dy += 0.12;
+      if (elapsed > 800) p.alpha = Math.max(0, p.alpha - 0.018);
+      if (p.y < canvas.height + 20 && p.alpha > 0) alive = true;
+      ctx.save();
+      ctx.globalAlpha = p.alpha;
+      ctx.translate(p.x, p.y);
+      ctx.rotate(p.r);
+      ctx.fillStyle = p.color;
+      ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+      ctx.restore();
+    });
+    if (alive) confettiAnim = requestAnimationFrame(frame);
+    else ctx.clearRect(0, 0, canvas.width, canvas.height);
+  }
+  confettiAnim = requestAnimationFrame(frame);
+}
+
+render();
+
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('./service-worker.js').catch(() => {});
+  });
+}
 </script>
 </body>
 </html>
